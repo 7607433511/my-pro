@@ -1,0 +1,1539 @@
+html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERPUNK STUDIOS | Video Editing, VFX & 3D Modeling</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Three.js for 3D Viewer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#05050a',
+                            card: '#0c0c16',
+                            border: '#1f1f38',
+                            cyan: '#00f0ff',
+                            purple: '#bd00ff',
+                            pink: '#ff007f',
+                            yellow: '#f3e600',
+                            darkblue: '#0b0f19'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 20px rgba(0, 240, 255, 0.4)',
+                        'neon-purple': '0 0 20px rgba(189, 0, 255, 0.4)',
+                        'neon-pink': '0 0 20px rgba(255, 0, 127, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #05050a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .cyber-grid {
+            background-image: linear-gradient(to right, rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glow-text-cyan {
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+        .glow-text-purple {
+            text-shadow: 0 0 10px rgba(189, 0, 255, 0.6), 0 0 20px rgba(189, 0, 255, 0.3);
+        }
+        .glass-panel {
+            background: rgba(12, 12, 22, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #05050a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f1f38;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+    </style>
+</head>
+<body class="bg-cyber-bg text-slate-100 min-h-screen flex flex-col cyber-grid">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-cyber-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyber-cyan to-cyber-purple flex items-center justify-center shadow-neon-cyan">
+                    <i class="fa-solid fa-cube text-cyber-bg text-xl font-black"></i>
+                </div>
+                <div>
+                    <span class="font-orbitron font-black text-xl tracking-wider text-white">CYBERPUNK</span>
+                    <span class="text-xs block text-cyber-cyan font-orbitron tracking-widest">STUDIOS VFX</span>
+                </div>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-semibold">
+                <button onclick="switchTab('home')" class="nav-btn text-cyber-cyan transition hover:text-white" data-target="home">Home</button>
+                <button onclick="switchTab('services')" class="nav-btn text-slate-300 transition hover:text-cyber-cyan" data-target="services">Services & Pricing</button>
+                <button onclick="switchTab('showreel')" class="nav-btn text-slate-300 transition hover:text-cyber-cyan" data-target="showreel">Showreel</button>
+                <button onclick="switchTab('models')" class="nav-btn text-slate-300 transition hover:text-cyber-cyan" data-target="models">3D Vault</button>
+                <button onclick="switchTab('submit')" class="nav-btn text-slate-300 transition hover:text-cyber-cyan" data-target="submit">Submit Project</button>
+            </nav>
+
+            <!-- Actions / Auth Button -->
+            <div class="flex items-center space-x-3">
+                <button id="authNavBtn" onclick="openAuthModal()" class="px-4 py-2 rounded-lg bg-cyber-purple/20 border border-cyber-purple text-cyber-purple hover:bg-cyber-purple hover:text-white transition font-orbitron text-xs tracking-wider shadow-neon-purple flex items-center space-x-2">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                    <span id="authBtnText">Client Portal</span>
+                </button>
+                <button onclick="openAdminLoginModal()" class="px-4 py-2 rounded-lg bg-cyber-cyan/20 border border-cyber-cyan text-cyber-cyan hover:bg-cyber-cyan hover:text-cyber-bg transition font-orbitron text-xs tracking-wider shadow-neon-cyan flex items-center space-x-2">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Admin</span>
+                </button>
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-300 hover:text-cyber-cyan">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Navigation Menu -->
+        <div id="mobileMenu" class="hidden md:hidden glass-panel border-b border-cyber-border px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left py-2 text-cyber-cyan font-semibold">Home</button>
+            <button onclick="switchTab('services'); toggleMobileMenu();" class="block w-full text-left py-2 text-slate-300 font-semibold">Services & Pricing</button>
+            <button onclick="switchTab('showreel'); toggleMobileMenu();" class="block w-full text-left py-2 text-slate-300 font-semibold">Showreel</button>
+            <button onclick="switchTab('models'); toggleMobileMenu();" class="block w-full text-left py-2 text-slate-300 font-semibold">3D Vault</button>
+            <button onclick="switchTab('submit'); toggleMobileMenu();" class="block w-full text-left py-2 text-slate-300 font-semibold">Submit Project</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+
+        <!-- VIEW: HOME -->
+        <section id="view-home" class="view-section py-12 lg:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Hero Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-xs font-orbitron tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-cyber-cyan animate-ping"></span>
+                            <span>NEXT-GEN VISUAL EFFECTS & 3D STUDIO</span>
+                        </div>
+                        <h1 class="text-4xl sm:text-6xl font-black font-orbitron tracking-tight leading-none text-white">
+                            WE BUILD <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-cyber-purple to-cyber-pink glow-text-cyan">CYBERPUNK</span> REALITIES.
+                        </h1>
+                        <p class="text-slate-400 text-lg leading-relaxed">
+                            Professional Hollywood-grade Video Editing, Cinematic VFX, photorealistic CGI, and 3D Modeling tailored for indie games, futuristic music videos, and immersive cyberpunk brands.
+                        </p>
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <button onclick="switchTab('submit')" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyber-cyan to-cyber-purple text-cyber-bg font-orbitron font-bold text-sm tracking-wider hover:opacity-90 shadow-neon-cyan transition transform hover:-translate-y-0.5">
+                                START YOUR PROJECT <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </button>
+                            <button onclick="switchTab('showreel')" class="px-8 py-4 rounded-xl glass-panel border border-cyber-cyan/40 text-cyber-cyan font-orbitron font-bold text-sm tracking-wider hover:bg-cyber-cyan/10 transition">
+                                WATCH SHOWREEL
+                            </button>
+                        </div>
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-3 gap-6 pt-8 border-t border-cyber-border">
+                            <div>
+                                <h3 class="text-2xl sm:text-3xl font-black font-orbitron text-cyber-cyan">250+</h3>
+                                <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Projects Delivered</p>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl sm:text-3xl font-black font-orbitron text-cyber-purple">4K/8K</h3>
+                                <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Ultra HD Pipeline</p>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl sm:text-3xl font-black font-orbitron text-cyber-pink">99.8%</h3>
+                                <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Client Satisfaction</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hero 3D / Interactive Showcase -->
+                    <div class="relative">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-cyber-cyan to-cyber-purple rounded-2xl blur-xl opacity-30 animate-pulse"></div>
+                        <div class="relative glass-panel rounded-2xl p-6 border border-cyber-border shadow-2xl">
+                            <div class="flex items-center justify-between mb-4 pb-3 border-b border-cyber-border">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                    <span class="text-xs font-orbitron text-slate-400 ml-2">CYBER_RENDER_ENGINE.exe</span>
+                                </div>
+                                <span class="text-xs text-cyber-cyan font-orbitron">LIVE PREVIEW</span>
+                            </div>
+                            <!-- Canvas Container for 3D Demo / Viewer -->
+                            <div id="heroCanvasContainer" class="w-full h-80 sm:h-96 rounded-xl bg-cyber-darkblue relative overflow-hidden flex items-center justify-center">
+                                <!-- Fallback / Three JS renders here -->
+                                <div id="heroCanvasFallback" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                                    <i class="fa-solid fa-cube text-5xl text-cyber-cyan mb-4 animate-bounce"></i>
+                                    <p class="font-orbitron text-sm text-slate-300">Loading Cybernetic Engine...</p>
+                                    <p class="text-xs text-slate-500 mt-2">Interactive 3D Model Vault Active</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
+                                <span>Engine: WebGL / Three.js</span>
+                                <button onclick="switchTab('models')" class="text-cyber-cyan hover:underline font-orbitron">Browse Full 3D Vault <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Services Highlight -->
+                <div class="mt-24">
+                    <div class="text-center max-w-2xl mx-auto mb-16">
+                        <h2 class="text-3xl font-black font-orbitron tracking-tight text-white">CORE CAPABILITIES</h2>
+                        <p class="text-slate-400 text-sm mt-2">Equipped with state-of-the-art workstations, AI rendering nodes, and veteran VFX supervisors.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="glass-panel p-8 rounded-2xl border border-cyber-border hover:border-cyber-cyan transition group">
+                            <div class="w-14 h-14 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan/30 flex items-center justify-center text-cyber-cyan text-2xl mb-6 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-film"></i>
+                            </div>
+                            <h3 class="text-xl font-bold font-orbitron text-white mb-3">Cinematic Video Editing</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">Fast-paced cyberpunk cuts, cinematic color grading (DaVinci Resolve), sound design, and glitch motion graphics.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl border border-cyber-border hover:border-cyber-purple transition group">
+                            <div class="w-14 h-14 rounded-xl bg-cyber-purple/10 border border-cyber-purple/30 flex items-center justify-center text-cyber-purple text-2xl mb-6 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <h3 class="text-xl font-bold font-orbitron text-white mb-3">Advanced VFX & CGI</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">Houdini simulations, particle effects, laser beams, neon UI tracking, composite green screen, and explosive destruction.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl border border-cyber-border hover:border-cyber-pink transition group">
+                            <div class="w-14 h-14 rounded-xl bg-cyber-pink/10 border border-cyber-pink/30 flex items-center justify-center text-cyber-pink text-2xl mb-6 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-cube"></i>
+                            </div>
+                            <h3 class="text-xl font-bold font-orbitron text-white mb-3">3D Modeling & Assets</h3>
+                            <p class="text-slate-400 text-sm leading-relaxed">Game-ready futuristic vehicles, cybernetic characters, weapons, and detailed sci-fi hard surface assets in GLTF/GLB.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: SERVICES & PRICING -->
+        <section id="view-services" class="view-section hidden py-12 lg:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-cyber-cyan text-xs font-orbitron tracking-widest uppercase">Transparent Pricing</span>
+                    <h2 class="text-3xl sm:text-4xl font-black font-orbitron tracking-tight text-white mt-2">SERVICES & RATE CARD (₹ INR)</h2>
+                    <p class="text-slate-400 text-sm mt-3">Choose a pre-packaged tier or request a custom quote for your immersive production.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Tier 1 -->
+                    <div class="glass-panel p-8 rounded-2xl border border-cyber-border flex flex-col justify-between relative">
+                        <div>
+                            <div class="inline-block px-3 py-1 rounded bg-cyber-cyan/10 text-cyber-cyan text-xs font-orbitron mb-4">STARTER TIER</div>
+                            <h3 class="text-2xl font-bold font-orbitron text-white">Cyber Edit Basic</h3>
+                            <p class="text-slate-400 text-sm mt-2">Ideal for YouTube creators, promos, and music teasers.</p>
+                            <div class="my-6 py-4 border-y border-cyber-border">
+                                <span class="text-4xl font-black font-orbitron text-white">₹14,999</span>
+                                <span class="text-xs text-slate-400 ml-1">/ project</span>
+                            </div>
+                            <ul class="space-y-3 text-sm text-slate-300">
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-cyan mr-2"></i> Up to 3 minutes video</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-cyan mr-2"></i> Color Grading & Sound FX</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-cyan mr-2"></i> Basic Transitions & Glitch</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-cyan mr-2"></i> 2 Rounds of Revisions</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-cyan mr-2"></i> 4-5 Days Delivery</li>
+                            </ul>
+                        </div>
+                        <button onclick="selectServiceForSubmission('Cyber Edit Basic', 14999)" class="mt-8 w-full py-3 rounded-xl bg-cyber-cyan/20 border border-cyber-cyan text-cyber-cyan hover:bg-cyber-cyan hover:text-cyber-bg transition font-orbitron font-bold text-xs tracking-wider">
+                            SELECT & SUBMIT
+                        </button>
+                    </div>
+
+                    <!-- Tier 2 (Featured) -->
+                    <div class="glass-panel p-8 rounded-2xl border-2 border-cyber-purple flex flex-col justify-between relative shadow-neon-purple transform md:-translate-y-2">
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full bg-cyber-purple text-white text-xs font-orbitron font-bold uppercase tracking-wider shadow-neon-purple">
+                            Most Popular
+                        </div>
+                        <div>
+                            <div class="inline-block px-3 py-1 rounded bg-cyber-purple/10 text-cyber-purple text-xs font-orbitron mb-4">PRODUCTIONS TIER</div>
+                            <h3 class="text-2xl font-bold font-orbitron text-white">VFX & Cinematic Suite</h3>
+                            <p class="text-slate-400 text-sm mt-2">Full CGI integration, laser VFX, and professional grading.</p>
+                            <div class="my-6 py-4 border-y border-cyber-border">
+                                <span class="text-4xl font-black font-orbitron text-white">₹49,999</span>
+                                <span class="text-xs text-slate-400 ml-1">/ project</span>
+                            </div>
+                            <ul class="space-y-3 text-sm text-slate-300">
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-purple mr-2"></i> Up to 5 minutes 4K video</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-purple mr-2"></i> Custom VFX & CGI Elements</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-purple mr-2"></i> 3D Asset Integration</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-purple mr-2"></i> Unlimited Revisions</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-purple mr-2"></i> Priority 48hr Support</li>
+                            </ul>
+                        </div>
+                        <button onclick="selectServiceForSubmission('VFX & Cinematic Suite', 49999)" class="mt-8 w-full py-3 rounded-xl bg-gradient-to-r from-cyber-cyan to-cyber-purple text-cyber-bg font-orbitron font-bold text-xs tracking-wider hover:opacity-90 shadow-neon-cyan">
+                            SELECT & SUBMIT
+                        </button>
+                    </div>
+
+                    <!-- Tier 3 -->
+                    <div class="glass-panel p-8 rounded-2xl border border-cyber-border flex flex-col justify-between relative">
+                        <div>
+                            <div class="inline-block px-3 py-1 rounded bg-cyber-pink/10 text-cyber-pink text-xs font-orbitron mb-4">ENTERPRISE TIER</div>
+                            <h3 class="text-2xl font-bold font-orbitron text-white">Full 3D World & VFX</h3>
+                            <p class="text-slate-400 text-sm mt-2">For game trailers, feature films, and brand takeovers.</p>
+                            <div class="my-6 py-4 border-y border-cyber-border">
+                                <span class="text-4xl font-black font-orbitron text-white">₹1,19,999</span>
+                                <span class="text-xs text-slate-400 ml-1">/ project</span>
+                            </div>
+                            <ul class="space-y-3 text-sm text-slate-300">
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-pink mr-2"></i> Unlimited Video Length</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-pink mr-2"></i> Custom 3D Asset Modeling (GLTF)</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-pink mr-2"></i> Hollywood VFX Supervisor</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-pink mr-2"></i> Source Project Files Included</li>
+                                <li class="flex items-center"><i class="fa-solid fa-check text-cyber-pink mr-2"></i> Dedicated Studio Team</li>
+                            </ul>
+                        </div>
+                        <button onclick="selectServiceForSubmission('Full 3D World & VFX', 119999)" class="mt-8 w-full py-3 rounded-xl bg-cyber-pink/20 border border-cyber-pink text-cyber-pink hover:bg-cyber-pink hover:text-white transition font-orbitron font-bold text-xs tracking-wider">
+                            SELECT & SUBMIT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: SHOWREEL -->
+        <section id="view-showreel" class="view-section hidden py-12 lg:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <span class="text-cyber-cyan text-xs font-orbitron tracking-widest uppercase">Cinematic Archive</span>
+                    <h2 class="text-3xl sm:text-4xl font-black font-orbitron tracking-tight text-white mt-2">STUDIO SHOWREEL</h2>
+                    <p class="text-slate-400 text-sm mt-3">Watch our latest CGI breakdowns, music video cuts, and VFX reels.</p>
+                </div>
+
+                <!-- Main Video Showcase Player -->
+                <div class="glass-panel rounded-2xl p-4 border border-cyber-border mb-12 shadow-2xl">
+                    <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-cyber-darkblue flex items-center justify-center">
+                        <iframe id="mainShowreelVideo" class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Cyberpunk Studios Showreel" allowfullscreen></iframe>
+                    </div>
+                    <div class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-2">
+                        <div>
+                            <h3 id="currentVideoTitle" class="text-xl font-bold font-orbitron text-white">CYBERPUNK 2077 VFX & EDIT REEL 2026</h3>
+                            <p class="text-xs text-slate-400 mt-1">Rendered in 4K 60FPS • DaVinci Resolve & Blender</p>
+                        </div>
+                        <span class="px-3 py-1 rounded bg-cyber-cyan/10 text-cyber-cyan text-xs font-orbitron border border-cyber-cyan/30">FEATURED REEL</span>
+                    </div>
+                </div>
+
+                <!-- Showreel Playlist Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div onclick="playVideo('https://www.youtube.com/embed/dQw4w9WgXcQ', 'CYBERPUNK 2077 VFX & EDIT REEL 2026')" class="glass-panel p-4 rounded-xl border border-cyber-border hover:border-cyber-cyan cursor-pointer transition group">
+                        <div class="aspect-video rounded-lg bg-cyber-darkblue overflow-hidden relative mb-3 flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-cyber-cyan group-hover:scale-125 transition"></i>
+                        </div>
+                        <h4 class="font-orbitron font-bold text-sm text-white group-hover:text-cyber-cyan transition">VFX Breakdown 2026</h4>
+                        <p class="text-xs text-slate-400 mt-1">Duration: 2:45</p>
+                    </div>
+                    <div onclick="playVideo('https://www.youtube.com/embed/5qap5aO4i9A', 'NEON DRIFT - Music Video Edit')" class="glass-panel p-4 rounded-xl border border-cyber-border hover:border-cyber-purple cursor-pointer transition group">
+                        <div class="aspect-video rounded-lg bg-cyber-darkblue overflow-hidden relative mb-3 flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-cyber-purple group-hover:scale-125 transition"></i>
+                        </div>
+                        <h4 class="font-orbitron font-bold text-sm text-white group-hover:text-cyber-purple transition">Neon Drift Music Video</h4>
+                        <p class="text-xs text-slate-400 mt-1">Duration: 3:30</p>
+                    </div>
+                    <div onclick="playVideo('https://www.youtube.com/embed/jfKfPfyJRdk', 'CYBER-MECH 3D ASSET ANIMATION')" class="glass-panel p-4 rounded-xl border border-cyber-border hover:border-cyber-pink cursor-pointer transition group">
+                        <div class="aspect-video rounded-lg bg-cyber-darkblue overflow-hidden relative mb-3 flex items-center justify-center">
+                            <i class="fa-solid fa-play text-3xl text-cyber-pink group-hover:scale-125 transition"></i>
+                        </div>
+                        <h4 class="font-orbitron font-bold text-sm text-white group-hover:text-cyber-pink transition">Cyber-Mech 3D Animation</h4>
+                        <p class="text-xs text-slate-400 mt-1">Duration: 1:50</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: 3D MODELS VAULT -->
+        <section id="view-models" class="view-section hidden py-12 lg:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
+                    <div>
+                        <span class="text-cyber-cyan text-xs font-orbitron tracking-widest uppercase">Interactive 3D Assets</span>
+                        <h2 class="text-3xl sm:text-4xl font-black font-orbitron tracking-tight text-white mt-2">CYBERPUNK 3D VAULT</h2>
+                        <p class="text-slate-400 text-sm mt-3">Inspect game-ready GLTF/GLB models in real-time 3D or upload your own.</p>
+                    </div>
+                    <button onclick="openUploadModal()" class="mt-4 md:mt-0 px-6 py-3 rounded-xl bg-cyber-cyan/20 border border-cyber-cyan text-cyber-cyan hover:bg-cyber-cyan hover:text-cyber-bg transition font-orbitron text-xs tracking-wider shadow-neon-cyan flex items-center space-x-2">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Upload 3D Model</span>
+                    </button>
+                </div>
+
+                <!-- 3D Interactive Viewer Showcase Area -->
+                <div class="glass-panel rounded-2xl p-6 border border-cyber-border mb-12">
+                    <div class="flex flex-col lg:flex-row gap-8 items-center">
+                        <div class="w-full lg:w-2/3 h-96 rounded-xl bg-cyber-darkblue relative overflow-hidden" id="modelViewerContainer">
+                            <!-- Three.js Viewer Canvas inserted via JS -->
+                            <div id="viewerLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-cyber-bg/80 z-10">
+                                <div class="w-12 h-12 rounded-full border-4 border-cyber-cyan border-t-transparent animate-spin mb-4"></div>
+                                <p class="font-orbitron text-xs text-cyber-cyan">LOADING 3D ASSET...</p>
+                            </div>
+                        </div>
+                        <div class="w-full lg:w-1/3 space-y-6">
+                            <div>
+                                <span class="text-xs font-orbitron text-cyber-purple">ACTIVE INSPECTION</span>
+                                <h3 id="activeModelTitle" class="text-2xl font-bold font-orbitron text-white mt-1">Cyberpunk Drone MK-V</h3>
+                                <p id="activeModelDesc" class="text-slate-400 text-sm mt-2">Fully rigged low-poly combat drone with 4K PBR textures and neon emissive maps.</p>
+                            </div>
+                            <div class="space-y-3 py-4 border-y border-cyber-border text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Format:</span>
+                                    <span id="activeModelFormat" class="font-orbitron text-white">GLTF / GLB</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Polycount:</span>
+                                    <span class="font-orbitron text-white">18,450 Tris</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Rigged:</span>
+                                    <span class="font-orbitron text-green-400">Yes</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="resetCamera()" class="flex-1 py-3 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan text-cyber-cyan hover:bg-cyber-cyan hover:text-cyber-bg transition font-orbitron text-xs tracking-wider">
+                                    <i class="fa-solid fa-rotate mr-2"></i> Reset Camera
+                                </button>
+                                <button onclick="downloadActiveModel()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyber-cyan to-cyber-purple text-cyber-bg font-orbitron font-bold text-xs tracking-wider hover:opacity-90">
+                                    <i class="fa-solid fa-download mr-2"></i> Download Asset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3D Models Grid -->
+                <div id="modelsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Populated dynamically from localStorage / defaults -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: SUBMIT PROJECT / CLIENT PORTAL -->
+        <section id="view-submit" class="view-section hidden py-12 lg:py-20">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <span class="text-cyber-cyan text-xs font-orbitron tracking-widest uppercase">Project Commission</span>
+                    <h2 class="text-3xl sm:text-4xl font-black font-orbitron tracking-tight text-white mt-2">SUBMIT YOUR PROJECT</h2>
+                    <p class="text-slate-400 text-sm mt-3">Provide project specifics, Google Drive links, or reference files for instant studio review.</p>
+                </div>
+
+                <div class="glass-panel p-8 sm:p-10 rounded-2xl border border-cyber-border shadow-2xl">
+                    <form id="projectSubmitForm" onsubmit="handleProjectSubmit(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-orbitron text-slate-300 mb-2">YOUR NAME / BRAND *</label>
+                                <input type="text" id="subName" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-3 text-white focus:border-cyber-cyan outline-none transition text-sm" placeholder="e.g. Alex Mercer">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-orbitron text-slate-300 mb-2">EMAIL ADDRESS *</label>
+                                <input type="email" id="subEmail" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-3 text-white focus:border-cyber-cyan outline-none transition text-sm" placeholder="alex@cybernet.io">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-orbitron text-slate-300 mb-2">SERVICE TYPE *</label>
+                                <select id="subService" class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-3 text-white focus:border-cyber-cyan outline-none transition text-sm">
+                                    <option value="Cyber Edit Basic">Cyber Edit Basic (₹14,999)</option>
+                                    <option value="VFX & Cinematic Suite" selected>VFX & Cinematic Suite (₹49,999)</option>
+                                    <option value="Full 3D World & VFX">Full 3D World & VFX (₹1,19,999)</option>
+                                    <option value="Custom CGI / 3D Asset">Custom CGI / 3D Asset (Custom Quote)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-orbitron text-slate-300 mb-2">BUDGET (INR ₹)</label>
+                                <input type="number" id="subBudget" class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-3 text-white focus:border-cyber-cyan outline-none transition text-sm" value="49999">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-orbitron text-slate-300 mb-2">GOOGLE DRIVE / DROPBOX LINK (RAW FOOTAGE OR ASSETS)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                                    <i class="fa-brands fa-google-drive"></i>
+                                </span>
+                                <input type="url" id="subDriveLink" class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl pl-11 pr-4 py-3 text-white focus:border-cyber-cyan outline-none transition text-sm" placeholder="https://drive.google.com/drive/folders/...">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-orbitron text-slate-300 mb-2">PROJECT DESCRIPTION & VISION *</label>
+                            <textarea id="subDesc" rows="4" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-3 text-white focus:border-cyber-cyan outline-none transition text-sm" placeholder="Describe your storyline, aesthetic preferences, mood board references, or specific VFX requirements..."></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyber-cyan via-cyber-purple to-cyber-pink text-cyber-bg font-orbitron font-bold text-sm tracking-wider hover:opacity-90 shadow-neon-cyan transition">
+                            SUBMIT PROJECT FOR STUDIO REVIEW <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: CLIENT DASHBOARD -->
+        <section id="view-client-dashboard" class="view-section hidden py-12 lg:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-cyber-border">
+                    <div>
+                        <span class="text-cyber-purple text-xs font-orbitron tracking-widest uppercase">Client Portal</span>
+                        <h2 id="clientWelcomeTitle" class="text-3xl font-black font-orbitron text-white mt-1">WELCOME, CLIENT</h2>
+                        <p class="text-slate-400 text-sm mt-1">Manage your active submissions, direct message the studio, and complete payments.</p>
+                    </div>
+                    <button onclick="logoutClient()" class="mt-4 md:mt-0 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white transition font-orbitron text-xs tracking-wider">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- My Projects Column -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="glass-panel p-6 rounded-2xl border border-cyber-border">
+                            <h3 class="font-orbitron font-bold text-lg text-white mb-4 flex items-center justify-between">
+                                <span>My Submitted Projects</span>
+                                <span id="clientProjectCount" class="px-2 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan text-xs">0 Active</span>
+                            </h3>
+                            <div id="clientProjectsList" class="space-y-4">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client Direct Support Chat -->
+                    <div class="space-y-6">
+                        <div class="glass-panel p-6 rounded-2xl border border-cyber-border flex flex-col h-[500px]">
+                            <h3 class="font-orbitron font-bold text-lg text-white mb-4 flex items-center space-x-2">
+                                <i class="fa-solid fa-headset text-cyber-cyan"></i>
+                                <span>Studio Direct Chat</span>
+                            </h3>
+                            <div id="clientChatMessages" class="flex-grow bg-cyber-darkblue rounded-xl p-4 overflow-y-auto space-y-3 mb-4 border border-cyber-border text-sm">
+                                <div class="p-3 rounded-lg bg-cyber-purple/10 border border-cyber-purple/30 text-slate-300">
+                                    <span class="text-xs font-orbitron text-cyber-purple block mb-1">Cyberpunk Studios Support</span>
+                                    Hello! How can we assist your production today?
+                                </div>
+                            </div>
+                            <form onsubmit="sendClientChatMessage(event)" class="flex gap-2">
+                                <input type="text" id="clientChatInput" required class="flex-grow bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-2.5 text-white focus:border-cyber-cyan outline-none text-sm" placeholder="Type message to studio...">
+                                <button type="submit" class="px-4 py-2.5 rounded-xl bg-cyber-cyan text-cyber-bg font-bold hover:opacity-90 transition">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: ADMIN CONTROL CENTER -->
+        <section id="view-admin" class="view-section hidden py-12 lg:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Admin Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-cyber-border">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 rounded-xl bg-red-500/20 border border-red-500 flex items-center justify-center text-red-400 text-xl">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <span class="text-red-400 text-xs font-orbitron tracking-widest uppercase">Root Control Center</span>
+                            <h2 class="text-3xl font-black font-orbitron text-white mt-1">ADMINISTRATOR DASHBOARD</h2>
+                        </div>
+                    </div>
+                    <button onclick="logoutAdmin()" class="mt-4 md:mt-0 px-5 py-2.5 rounded-xl bg-red-500/20 border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition font-orbitron text-xs tracking-wider">
+                        <i class="fa-solid fa-power-off mr-2"></i> Lock Admin Session
+                    </button>
+                </div>
+
+                <!-- Admin Tabs Nav -->
+                <div class="flex flex-wrap gap-2 mb-8 border-b border-cyber-border pb-4">
+                    <button onclick="switchAdminTab('projects')" class="admin-tab-btn px-5 py-2.5 rounded-xl bg-cyber-cyan text-cyber-bg font-orbitron font-bold text-xs tracking-wider transition" data-admin-target="projects">
+                        <i class="fa-solid fa-list-check mr-2"></i> Project Requests (<span id="adminProjCount">0</span>)
+                    </button>
+                    <button onclick="switchAdminTab('customers')" class="admin-tab-btn px-5 py-2.5 rounded-xl bg-cyber-darkblue border border-cyber-border text-slate-300 hover:text-cyber-cyan font-orbitron font-bold text-xs tracking-wider transition" data-admin-target="customers">
+                        <i class="fa-solid fa-users mr-2"></i> Customers (<span id="adminCustCount">0</span>)
+                    </button>
+                    <button onclick="switchAdminTab('messages')" class="admin-tab-btn px-5 py-2.5 rounded-xl bg-cyber-darkblue border border-cyber-border text-slate-300 hover:text-cyber-cyan font-orbitron font-bold text-xs tracking-wider transition" data-admin-target="messages">
+                        <i class="fa-solid fa-comments mr-2"></i> Support Chats (<span id="adminMsgCount">0</span>)
+                    </button>
+                    <button onclick="switchAdminTab('vault')" class="admin-tab-btn px-5 py-2.5 rounded-xl bg-cyber-darkblue border border-cyber-border text-slate-300 hover:text-cyber-cyan font-orbitron font-bold text-xs tracking-wider transition" data-admin-target="vault">
+                        <i class="fa-solid fa-cube mr-2"></i> 3D Vault Manager
+                    </button>
+                </div>
+
+                <!-- ADMIN TAB: PROJECTS -->
+                <div id="admin-tab-projects" class="admin-tab-content space-y-6">
+                    <div class="glass-panel rounded-2xl border border-cyber-border overflow-hidden">
+                        <div class="p-6 border-b border-cyber-border flex justify-between items-center">
+                            <h3 class="font-orbitron font-bold text-lg text-white">Submitted Projects & Orders</h3>
+                            <button onclick="loadAdminData()" class="px-3 py-1.5 rounded bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-xs font-orbitron">
+                                <i class="fa-solid fa-rotate mr-1"></i> Refresh
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-cyber-border bg-cyber-darkblue text-xs font-orbitron text-slate-400">
+                                        <th class="p-4">Client / Email</th>
+                                        <th class="p-4">Service & Budget</th>
+                                        <th class="p-4">Drive Link</th>
+                                        <th class="p-4">Description</th>
+                                        <th class="p-4">Status</th>
+                                        <th class="p-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminProjectsTableBody" class="divide-y divide-cyber-border text-sm">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: CUSTOMERS -->
+                <div id="admin-tab-customers" class="admin-tab-content hidden space-y-6">
+                    <div class="glass-panel rounded-2xl border border-cyber-border overflow-hidden">
+                        <div class="p-6 border-b border-cyber-border">
+                            <h3 class="font-orbitron font-bold text-lg text-white">Registered Customer Accounts</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-cyber-border bg-cyber-darkblue text-xs font-orbitron text-slate-400">
+                                        <th class="p-4">Name</th>
+                                        <th class="p-4">Email</th>
+                                        <th class="p-4">Registered On</th>
+                                        <th class="p-4 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminCustomersTableBody" class="divide-y divide-cyber-border text-sm">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: MESSAGES -->
+                <div id="admin-tab-messages" class="admin-tab-content hidden space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl border border-cyber-border">
+                        <h3 class="font-orbitron font-bold text-lg text-white mb-4">Customer Support Messages</h3>
+                        <div id="adminMessagesContainer" class="space-y-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: VAULT MANAGER -->
+                <div id="admin-tab-vault" class="admin-tab-content hidden space-y-6">
+                    <div class="glass-panel p-6 rounded-2xl border border-cyber-border">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-orbitron font-bold text-lg text-white">3D Vault Asset Manager</h3>
+                            <button onclick="openUploadModal()" class="px-4 py-2 rounded-xl bg-cyber-cyan text-cyber-bg font-bold font-orbitron text-xs">
+                                <i class="fa-solid fa-upload mr-2"></i> Add New 3D Model
+                            </button>
+                        </div>
+                        <div id="adminVaultList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-cyber-border mt-20 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyber-cyan to-cyber-purple flex items-center justify-center">
+                        <i class="fa-solid fa-cube text-cyber-bg font-black"></i>
+                    </div>
+                    <span class="font-orbitron font-bold text-lg text-white">CYBERPUNK STUDIOS</span>
+                </div>
+                <p class="text-xs text-slate-400">Professional VFX, 3D Modeling & Cinematic Editing Studio operating in 4K/8K Ultra HD pipelines.</p>
+            </div>
+            <div>
+                <h4 class="font-orbitron font-bold text-sm text-cyber-cyan mb-3">NAVIGATION</h4>
+                <ul class="space-y-2 text-xs text-slate-400">
+                    <li><button onclick="switchTab('home')" class="hover:text-cyber-cyan transition">Home</button></li>
+                    <li><button onclick="switchTab('services')" class="hover:text-cyber-cyan transition">Services & Pricing</button></li>
+                    <li><button onclick="switchTab('showreel')" class="hover:text-cyber-cyan transition">Showreel</button></li>
+                    <li><button onclick="switchTab('models')" class="hover:text-cyber-cyan transition">3D Vault</button></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-orbitron font-bold text-sm text-cyber-purple mb-3">SERVICES</h4>
+                <ul class="space-y-2 text-xs text-slate-400">
+                    <li>Cinematic Video Editing</li>
+                    <li>Houdini VFX & CGI Simulations</li>
+                    <li>Game-Ready 3D Asset Modeling</li>
+                    <li>Color Grading (DaVinci Resolve)</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-orbitron font-bold text-sm text-cyber-pink mb-3">SECURE ACCESS</h4>
+                <p class="text-xs text-slate-400 mb-3">Authorized personnel only for Root Administrator Panel.</p>
+                <button onclick="openAdminLoginModal()" class="px-4 py-2 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan text-cyber-cyan hover:bg-cyber-cyan hover:text-cyber-bg transition font-orbitron text-xs">
+                    Admin Master Key Login
+                </button>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-cyber-border text-center text-xs text-slate-500">
+            &copy; 2026 CYBERPUNK STUDIOS. All Rights Reserved. Built with Three.js & Tailwind CSS.
+        </div>
+    </footer>
+
+    <!-- MODAL: AUTH (Client Login / Register) -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="glass-panel w-full max-w-md p-8 rounded-2xl border border-cyber-border relative shadow-2xl">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-6">
+                <h3 id="authModalTitle" class="text-2xl font-black font-orbitron text-white">CLIENT LOGIN</h3>
+                <p class="text-xs text-slate-400 mt-1">Access your projects & private studio chat</p>
+            </div>
+            <div id="authErrorMsg" class="hidden mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500 text-red-400 text-xs"></div>
+            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div id="authNameGroup" class="hidden">
+                    <label class="block text-xs font-orbitron text-slate-300 mb-1">FULL NAME</label>
+                    <input type="text" id="authName" class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-2.5 text-white focus:border-cyber-cyan outline-none text-sm" placeholder="Alex Mercer">
+                </div>
+                <div>
+                    <label class="block text-xs font-orbitron text-slate-300 mb-1">EMAIL ADDRESS</label>
+                    <input type="email" id="authEmail" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-2.5 text-white focus:border-cyber-cyan outline-none text-sm" placeholder="alex@cybernet.io">
+                </div>
+                <div>
+                    <label class="block text-xs font-orbitron text-slate-300 mb-1">PASSWORD</label>
+                    <input type="password" id="authPassword" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-2.5 text-white focus:border-cyber-cyan outline-none text-sm" placeholder="••••••••">
+                </div>
+                <button type="submit" id="authSubmitBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyber-cyan to-cyber-purple text-cyber-bg font-orbitron font-bold text-xs tracking-wider hover:opacity-90 transition">
+                    LOGIN TO PORTAL
+                </button>
+            </form>
+            <div class="mt-6 text-center text-xs text-slate-400">
+                <span id="authToggleText">Don't have an account?</span>
+                <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-cyber-cyan font-bold ml-1 hover:underline">Register now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADMIN LOGIN -->
+    <div id="adminLoginModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="glass-panel w-full max-w-md p-8 rounded-2xl border border-red-500/50 relative shadow-2xl">
+            <button onclick="closeAdminLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-red-500/20 border border-red-500 flex items-center justify-center text-red-400 text-xl mx-auto mb-3">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-2xl font-black font-orbitron text-white">ADMIN MASTER KEY</h3>
+                <p class="text-xs text-slate-400 mt-1">Enter root credentials to unlock admin center</p>
+            </div>
+            <div id="adminLoginError" class="hidden mb-4 p-3 rounded-xl bg-red-500/20 border border-red-500 text-red-400 text-xs"></div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-orbitron text-slate-300 mb-1">MASTER KEY</label>
+                    <input type="password" id="adminMasterKeyInput" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-2.5 text-white focus:border-red-500 outline-none text-sm" placeholder="Enter master key...">
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-red-500 text-white font-orbitron font-bold text-xs tracking-wider hover:bg-red-600 transition shadow-lg shadow-red-500/30">
+                    UNLOCK ROOT CONTROL
+                </button>
+            </form>
+            <div class="mt-4 text-center text-xs text-slate-500">
+                Hint: Use master key <code class="text-red-400">cyberpunk2026root</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: UPLOAD 3D MODEL -->
+    <div id="uploadModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="glass-panel w-full max-w-lg p-8 rounded-2xl border border-cyber-border relative shadow-2xl">
+            <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-black font-orbitron text-white">UPLOAD 3D MODEL</h3>
+                <p class="text-xs text-slate-400 mt-1">Add GLTF/GLB models to the Vault</p>
+            </div>
+            <form onsubmit="handleModelUpload(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-orbitron text-slate-300 mb-1">MODEL TITLE *</label>
+                    <input type="text" id="upTitle" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-2.5 text-white focus:border-cyber-cyan outline-none text-sm" placeholder="e.g. Cybernetic Mech Blade">
+                </div>
+                <div>
+                    <label class="block text-xs font-orbitron text-slate-300 mb-1">DESCRIPTION *</label>
+                    <textarea id="upDesc" rows="3" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-2.5 text-white focus:border-cyber-cyan outline-none text-sm" placeholder="High-poly game ready asset with 4K textures..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-orbitron text-slate-300 mb-1">GLTF / GLB FILE URL *</label>
+                    <input type="url" id="upFileUrl" required class="w-full bg-cyber-darkblue border border-cyber-border rounded-xl px-4 py-2.5 text-white focus:border-cyber-cyan outline-none text-sm" placeholder="https://raw.githubusercontent.com/.../model.glb">
+                    <p class="text-[10px] text-slate-500 mt-1">Provide direct URL to a valid GLTF/GLB asset file.</p>
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyber-cyan to-cyber-purple text-cyber-bg font-orbitron font-bold text-xs tracking-wider hover:opacity-90 transition">
+                    UPLOAD TO 3D VAULT
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SIMULATED RAZORPAY PAYMENT -->
+    <div id="paymentModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4">
+        <div class="glass-panel w-full max-w-md p-8 rounded-2xl border border-cyber-cyan relative shadow-2xl">
+            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 rounded-xl bg-cyber-cyan/20 border border-cyber-cyan flex items-center justify-center text-cyber-cyan text-xl mx-auto mb-3">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                </div>
+                <h3 class="text-2xl font-black font-orbitron text-white">RAZORPAY SECURE GATEWAY</h3>
+                <p class="text-xs text-slate-400 mt-1">Simulated Live INR Transaction</p>
+            </div>
+            <div class="bg-cyber-darkblue p-4 rounded-xl border border-cyber-border mb-6 space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Project:</span>
+                    <span id="payModalProject" class="font-bold text-white">VFX Suite</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Amount (INR):</span>
+                    <span id="payModalAmount" class="font-orbitron text-cyber-cyan font-bold">₹49,999</span>
+                </div>
+                <div class="flex justify-between text-xs pt-2 border-t border-cyber-border">
+                    <span class="text-slate-500">GST (18%):</span>
+                    <span id="payModalGst" class="text-slate-300">Included</span>
+                </div>
+            </div>
+            <button onclick="confirmRazorpayPayment()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyber-cyan to-cyber-purple text-cyber-bg font-orbitron font-bold text-sm tracking-wider hover:opacity-90 shadow-neon-cyan transition">
+                PAY NOW VIA UPI / CARDS <i class="fa-solid fa-lock ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        let currentTab = 'home';
+        let isAdminLoggedIn = false;
+        let loggedInClient = JSON.parse(localStorage.getItem('cyber_logged_in_client')) || null;
+        let isRegisterMode = false;
+
+        // Default 3D Models Vault
+        const defaultModels = [
+            {
+                id: 'model-1',
+                title: 'Cyberpunk Drone MK-V',
+                desc: 'Fully rigged low-poly combat drone with 4K PBR textures and neon emissive maps.',
+                fileUrl: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf',
+                format: 'GLTF'
+            },
+            {
+                id: 'model-2',
+                title: 'Neon Cyber Blade',
+                desc: 'Futuristic melee weapon with plasma energy core and carbon-fiber hilt.',
+                fileUrl: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/FlightHelmet/glTF/FlightHelmet.gltf',
+                format: 'GLTF'
+            },
+            {
+                id: 'model-3',
+                title: 'Cybernetic Mech Torso',
+                desc: 'Heavy industrial mech component with hydraulic pistons and armor plating.',
+                fileUrl: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/CesiumMilkTruck/glTF/CesiumMilkTruck.gltf',
+                format: 'GLTF'
+            }
+        ];
+
+        // Default Customers
+        const defaultCustomers = [
+            { id: 'c1', name: 'Alex Mercer', email: 'alex@cybernet.io', date: '2026-06-01' },
+            { id: 'c2', name: 'Kira Vance', email: 'kira@nexuscorp.net', date: '2026-06-04' }
+        ];
+
+        // Default Projects
+        const defaultProjects = [
+            { id: 'p1', name: 'Alex Mercer', email: 'alex@cybernet.io', service: 'VFX & Cinematic Suite', budget: 49999, driveLink: 'https://drive.google.com/drive/folders/demo1', desc: 'Need futuristic neon laser effects for synthwave music video intro.', status: 'In Progress', date: '2026-06-02' },
+            { id: 'p2', name: 'Kira Vance', email: 'kira@nexuscorp.net', service: 'Full 3D World & VFX', budget: 119999, driveLink: 'https://drive.google.com/drive/folders/demo2', desc: 'Game trailer CGI breakdown with 3D mech drone animations.', status: 'Pending', date: '2026-06-05' }
+        ];
+
+        // Default Messages
+        const defaultMessages = [
+            { id: 'm1', name: 'Alex Mercer', email: 'alex@cybernet.io', message: 'Hello studio, when can I expect the first draft of the laser VFX sequence?', date: '2026-06-03 14:20', reply: 'First render draft will be uploaded to your project portal by tomorrow evening!' }
+        ];
+
+        // Initialize localStorage if empty
+        if (!localStorage.getItem('cyber_models')) {
+            localStorage.setItem('cyber_models', JSON.stringify(defaultModels));
+        }
+        if (!localStorage.getItem('cyber_customers')) {
+            localStorage.setItem('cyber_customers', JSON.stringify(defaultCustomers));
+        }
+        if (!localStorage.getItem('cyber_projects')) {
+            localStorage.setItem('cyber_projects', JSON.stringify(defaultProjects));
+        }
+        if (!localStorage.getItem('cyber_messages')) {
+            localStorage.setItem('cyber_messages', JSON.stringify(defaultMessages));
+        }
+
+        let scene, camera, renderer, currentMesh, controls;
+        let activeModelData = null;
+
+        function init3DViewer(containerId, modelUrl) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = ''; // clear loading fallback
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 2, 5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            if (typeof THREE.OrbitControls !== 'undefined') {
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+            }
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            scene.add(ambientLight);
+
+            const pointLight1 = new THREE.PointLight(0x00f0ff, 3, 50);
+            pointLight1.position.set(5, 5, 5);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0xbd00ff, 3, 50);
+            pointLight2.position.set(-5, -5, -5);
+            scene.add(pointLight2);
+
+            // Load GLTF / GLB Model
+            if (modelUrl && typeof THREE.GLTFLoader !== 'undefined') {
+                const loader = new THREE.GLTFLoader();
+                loader.load(modelUrl, (gltf) => {
+                    currentMesh = gltf.scene;
+                    scene.add(currentMesh);
+                    
+                    // Center and scale model
+                    const box = new THREE.Box3().setFromObject(currentMesh);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 2 / maxDim;
+                    currentMesh.scale.multiplyScalar(scale);
+                    currentMesh.position.sub(center.multiplyScalar(scale));
+
+                    const loaderEl = document.getElementById('viewerLoading');
+                    if (loaderEl) loaderEl.style.display = 'none';
+                }, undefined, (error) => {
+                    console.error('Error loading 3D model:', error);
+                    loadFallbackCube();
+                });
+            } else {
+                loadFallbackCube();
+            }
+
+            // Animation Loop
+            function animate() {
+                requestAnimationFrame(animate);
+                if (currentMesh) {
+                    currentMesh.rotation.y += 0.005;
+                }
+                if (controls) controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Window resize listener
+            window.addEventListener('resize', () => {
+                if (!container) return;
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        function loadFallbackCube() {
+            const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+            const material = new THREE.MeshStandardMaterial({ color: 0x00f0ff, roughness: 0.3, metalness: 0.8 });
+            currentMesh = new THREE.Mesh(geometry, material);
+            scene.add(currentMesh);
+            const loaderEl = document.getElementById('viewerLoading');
+            if (loaderEl) loaderEl.style.display = 'none';
+        }
+
+        function resetCamera() {
+            if (camera) camera.position.set(0, 2, 5);
+            if (controls) controls.reset();
+        }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            const targetView = document.getElementById(`view-${tabId}`);
+            if (targetView) targetView.classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // If switching to models vault, initialize viewer with first model
+            if (tabId === 'models') {
+                renderVaultModels();
+                const models = JSON.parse(localStorage.getItem('cyber_models')) || defaultModels;
+                if (models.length > 0) {
+                    loadModelToViewer(models[0]);
+                }
+            }
+            if (tabId === 'client-dashboard') {
+                renderClientDashboard();
+            }
+            if (tabId === 'admin') {
+                loadAdminData();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function renderVaultModels() {
+            const models = JSON.parse(localStorage.getItem('cyber_models')) || defaultModels;
+            const grid = document.getElementById('modelsGrid');
+            if (!grid) return;
+
+            grid.innerHTML = models.map(m => `
+                <div class="glass-panel p-6 rounded-2xl border border-cyber-border hover:border-cyber-cyan transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="px-2.5 py-0.5 rounded bg-cyber-cyan/10 text-cyber-cyan text-xs font-orbitron">${m.format || 'GLTF'}</span>
+                            <span class="text-xs text-slate-500">Vault ID: ${m.id}</span>
+                        </div>
+                        <h3 class="font-orbitron font-bold text-lg text-white mb-2">${m.title}</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4">${m.desc}</p>
+                    </div>
+                    <button onclick='loadModelToViewer(${JSON.stringify(m)})' class="w-full py-2.5 rounded-xl bg-cyber-cyan/10 border border-cyber-cyan text-cyber-cyan hover:bg-cyber-cyan hover:text-cyber-bg transition font-orbitron text-xs tracking-wider">
+                        <i class="fa-solid fa-cube mr-2"></i> Inspect in 3D
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function loadModelToViewer(model) {
+            activeModelData = model;
+            document.getElementById('activeModelTitle').innerText = model.title;
+            document.getElementById('activeModelDesc').innerText = model.desc;
+            document.getElementById('activeModelFormat').innerText = model.format || 'GLTF / GLB';
+            
+            const loaderEl = document.getElementById('viewerLoading');
+            if (loaderEl) loaderEl.style.display = 'flex';
+
+            init3DViewer('modelViewerContainer', model.fileUrl);
+        }
+
+        function downloadActiveModel() {
+            if (!activeModelData || !activeModelData.fileUrl) {
+                alertUser('No active model selected for download.');
+                return;
+            }
+            window.open(activeModelData.fileUrl, '_blank');
+        }
+
+        function selectServiceForSubmission(serviceName, price) {
+            switchTab('submit');
+            document.getElementById('subService').value = serviceName;
+            document.getElementById('subBudget').value = price;
+        }
+
+        function handleProjectSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('subName').value;
+            const email = document.getElementById('subEmail').value;
+            const service = document.getElementById('subService').value;
+            const budget = document.getElementById('subBudget').value;
+            const driveLink = document.getElementById('subDriveLink').value;
+            const desc = document.getElementById('subDesc').value;
+
+            const newProj = {
+                id: 'p_' + Date.now(),
+                name,
+                email,
+                service,
+                budget: Number(budget),
+                driveLink,
+                desc,
+                status: 'Pending',
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            const projects = JSON.parse(localStorage.getItem('cyber_projects')) || [];
+            projects.unshift(newProj);
+            localStorage.setItem('cyber_projects', JSON.stringify(projects));
+
+            // Also ensure customer exists
+            const customers = JSON.parse(localStorage.getItem('cyber_customers')) || [];
+            if (!customers.some(c => c.email === email)) {
+                customers.push({ id: 'c_' + Date.now(), name, email, date: newProj.date });
+                localStorage.setItem('cyber_customers', JSON.stringify(customers));
+            }
+
+            alertUser('Project successfully submitted to Cyberpunk Studios! Our team will review your drive links and contact you within 24 hours.');
+            e.target.reset();
+            
+            if (loggedInClient) {
+                switchTab('client-dashboard');
+            } else {
+                switchTab('home');
+            }
+        }
+
+        function openAuthModal() {
+            document.getElementById('authModal').classList.remove('hidden');
+            document.getElementById('authModal').classList.add('flex');
+        }
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('flex');
+            document.getElementById('authModal').classList.add('hidden');
+        }
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('authModalTitle').innerText = isRegisterMode ? 'CLIENT REGISTRATION' : 'CLIENT LOGIN';
+            document.getElementById('authSubmitBtn').innerText = isRegisterMode ? 'REGISTER ACCOUNT' : 'LOGIN TO PORTAL';
+            document.getElementById('authToggleText').innerText = isRegisterMode ? 'Already have an account?' : "Don't have an account?";
+            document.getElementById('authToggleBtn').innerText = isRegisterMode ? 'Login here' : 'Register now';
+            const nameGroup = document.getElementById('authNameGroup');
+            if (isRegisterMode) nameGroup.classList.remove('hidden');
+            else nameGroup.classList.add('hidden');
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName') ? document.getElementById('authName').value : 'Client';
+            const errEl = document.getElementById('authErrorMsg');
+
+            let customers = JSON.parse(localStorage.getItem('cyber_customers')) || [];
+
+            if (isRegisterMode) {
+                if (customers.some(c => c.email === email)) {
+                    errEl.innerText = 'Email already registered. Please login.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+                const newCust = { id: 'c_' + Date.now(), name, email, date: new Date().toISOString().split('T')[0] };
+                customers.push(newCust);
+                localStorage.setItem('cyber_customers', JSON.stringify(customers));
+                loggedInClient = newCust;
+            } else {
+                let found = customers.find(c => c.email === email);
+                if (!found && email === 'alex@cybernet.io') {
+                    found = { id: 'c1', name: 'Alex Mercer', email: 'alex@cybernet.io', date: '2026-06-01' };
+                }
+                if (!found) {
+                    errEl.innerText = 'Account not found. Please register first.';
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+                loggedInClient = found;
+            }
+
+            localStorage.setItem('cyber_logged_in_client', JSON.stringify(loggedInClient));
+            closeAuthModal();
+            updateAuthNav();
+            switchTab('client-dashboard');
+        }
+
+        function logoutClient() {
+            loggedInClient = null;
+            localStorage.removeItem('cyber_logged_in_client');
+            updateAuthNav();
+            switchTab('home');
+        }
+
+        function updateAuthNav() {
+            const btnText = document.getElementById('authBtnText');
+            if (loggedInClient) {
+                btnText.innerText = loggedInClient.name.split(' ')[0];
+            } else {
+                btnText.innerText = 'Client Portal';
+            }
+        }
+
+        function renderClientDashboard() {
+            if (!loggedInClient) {
+                openAuthModal();
+                return;
+            }
+            document.getElementById('clientWelcomeTitle').innerText = `WELCOME, ${loggedInClient.name.toUpperCase()}`;
+            
+            const projects = JSON.parse(localStorage.getItem('cyber_projects')) || [];
+            const clientProjs = projects.filter(p => p.email.toLowerCase() === loggedInClient.email.toLowerCase());
+            
+            document.getElementById('clientProjectCount').innerText = `${clientProjs.length} Active`;
+            const listEl = document.getElementById('clientProjectsList');
+            
+            if (clientProjs.length === 0) {
+                listEl.innerHTML = `<p class="text-slate-500 text-xs py-4">No active projects found. Submit a project commission to get started.</p>`;
+            } else {
+                listEl.innerHTML = clientProjs.map(p => `
+                    <div class="p-4 rounded-xl bg-cyber-darkblue border border-cyber-border space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-orbitron font-bold text-white text-sm">${p.service}</span>
+                            <span class="px-2.5 py-1 rounded bg-cyber-cyan/10 text-cyber-cyan text-xs font-orbitron">${p.status}</span>
+                        </div>
+                        <p class="text-xs text-slate-400">${p.desc}</p>
+                        <div class="flex justify-between items-center text-xs pt-2 border-t border-cyber-border">
+                            <span class="text-slate-400">Budget: ₹${p.budget.toLocaleString()}</span>
+                            <button onclick="openPaymentModal('${p.id}', ${p.budget}, '${p.service}')" class="px-3 py-1.5 rounded-lg bg-cyber-cyan text-cyber-bg font-bold font-orbitron hover:opacity-90">
+                                Pay via Razorpay
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function sendClientChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('clientChatInput');
+            const msgText = input.value;
+            if (!msgText.trim() || !loggedInClient) return;
+
+            const messages = JSON.parse(localStorage.getItem('cyber_messages')) || [];
+            const newMsg = {
+                id: 'm_' + Date.now(),
+                name: loggedInClient.name,
+                email: loggedInClient.email,
+                message: msgText,
+                date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                reply: ''
+            };
+            messages.push(newMsg);
+            localStorage.setItem('cyber_messages', JSON.stringify(messages));
+
+            input.value = '';
+            loadClientChat();
+        }
+
+        function loadClientChat() {
+            if (!loggedInClient) return;
+            const messages = JSON.parse(localStorage.getItem('cyber_messages')) || [];
+            const clientMsgs = messages.filter(m => m.email.toLowerCase() === loggedInClient.email.toLowerCase());
+            const container = document.getElementById('clientChatMessages');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="p-3 rounded-lg bg-cyber-purple/10 border border-cyber-purple/30 text-slate-300">
+                    <span class="text-xs font-orbitron text-cyber-purple block mb-1">Cyberpunk Studios Support</span>
+                    Hello ${loggedInClient.name}! How can we assist your production today?
+                </div>
+            ` + clientMsgs.map(m => `
+                <div class="space-y-2">
+                    <div class="p-3 rounded-lg bg-cyber-cyan/10 border border-cyber-cyan/30 text-slate-200 text-right">
+                        <span class="text-[10px] font-orbitron text-cyber-cyan block mb-1">${m.date}</span>
+                        ${m.message}
+                    </div>
+                    ${m.reply ? `
+                        <div class="p-3 rounded-lg bg-cyber-purple/10 border border-cyber-purple/30 text-slate-200">
+                            <span class="text-[10px] font-orbitron text-cyber-purple block mb-1">Studio Reply</span>
+                            ${m.reply}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        let activePaymentProjId = null;
+        function openPaymentModal(projId, amount, serviceName) {
+            activePaymentProjId = projId;
+            document.getElementById('payModalProject').innerText = serviceName;
+            document.getElementById('payModalAmount').innerText = `₹${amount.toLocaleString()}`;
+            document.getElementById('paymentModal').classList.remove('hidden');
+            document.getElementById('paymentModal').classList.add('flex');
+        }
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('flex');
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+        function confirmRazorpayPayment() {
+            alertUser('Razorpay payment verified successfully! Transaction ID: pay_cyber_' + Math.floor(Math.random() * 1000000));
+            closePaymentModal();
+            
+            // Update project status to In Progress
+            let projects = JSON.parse(localStorage.getItem('cyber_projects')) || [];
+            projects = projects.map(p => {
+                if (p.id === activePaymentProjId) p.status = 'In Progress';
+                return p;
+            });
+            localStorage.setItem('cyber_projects', JSON.stringify(projects));
+            renderClientDashboard();
+        }
+
+        function openAdminLoginModal() {
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+            document.getElementById('adminLoginModal').classList.add('flex');
+        }
+        function closeAdminLoginModal() {
+            document.getElementById('adminLoginModal').classList.remove('flex');
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const key = document.getElementById('adminMasterKeyInput').value;
+            const errEl = document.getElementById('adminLoginError');
+
+            if (key === 'cyberpunk2026root') {
+                isAdminLoggedIn = true;
+                closeAdminLoginModal();
+                switchTab('admin');
+            } else {
+                errEl.innerText = 'Invalid Master Key. Use cyberpunk2026root';
+                errEl.classList.remove('hidden');
+            }
+        }
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            switchTab('home');
+        }
+
+        function switchAdminTab(adminTabId) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-cyber-cyan', 'text-cyber-bg');
+                btn.classList.add('bg-cyber-darkblue', 'text-slate-300');
+            });
+
+            document.getElementById(`admin-tab-${adminTabId}`).classList.remove('hidden');
+            const activeBtn = document.querySelector(`[data-admin-target="${adminTabId}"]`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-cyber-darkblue', 'text-slate-300');
+                activeBtn.classList.add('bg-cyber-cyan', 'text-cyber-bg');
+            }
+        }
+
+        function loadAdminData() {
+            const projects = JSON.parse(localStorage.getItem('cyber_projects')) || [];
+            const customers = JSON.parse(localStorage.getItem('cyber_customers')) || [];
+            const messages = JSON.parse(localStorage.getItem('cyber_messages')) || [];
+            const models = JSON.parse(localStorage.getItem('cyber_models')) || defaultModels;
+
+            document.getElementById('adminProjCount').innerText = projects.length;
+            document.getElementById('adminCustCount').innerText = customers.length;
+            document.getElementById('adminMsgCount').innerText = messages.length;
+
+            // Render Projects Table
+            const projBody = document.getElementById('adminProjectsTableBody');
+            projBody.innerHTML = projects.map(p => `
+                <tr>
+                    <td class="p-4">
+                        <div class="font-bold text-white">${p.name}</div>
+                        <div class="text-xs text-slate-400">${p.email}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="text-white">${p.service}</div>
+                        <div class="text-xs text-cyber-cyan font-orbitron">₹${p.budget.toLocaleString()}</div>
+                    </td>
+                    <td class="p-4">
+                        ${p.driveLink ? `<a href="${p.driveLink}" target="_blank" class="text-cyber-cyan hover:underline text-xs"><i class="fa-brands fa-google-drive mr-1"></i> Open Link</a>` : '<span class="text-slate-500 text-xs">None</span>'}
+                    </td>
+                    <td class="p-4 max-w-xs truncate text-slate-300 text-xs">${p.desc}</td>
+                    <td class="p-4">
+                        <select onchange="updateProjectStatus('${p.id}', this.value)" class="bg-cyber-darkblue border border-cyber-border rounded px-2 py-1 text-xs text-cyber-cyan font-orbitron">
+                            <option value="Pending" ${p.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="In Progress" ${p.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Review" ${p.status === 'Review' ? 'selected' : ''}>Review</option>
+                            <option value="Completed" ${p.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="deleteProject('${p.id}')" class="p-1.5 rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Render Customers Table
+            const custBody = document.getElementById('adminCustomersTableBody');
+            custBody.innerHTML = customers.map(c => `
+                <tr>
+                    <td class="p-4 font-bold text-white">${c.name}</td>
+                    <td class="p-4 text-slate-300">${c.email}</td>
+                    <td class="p-4 text-slate-400 text-xs">${c.date || '2026-06-01'}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="deleteCustomer('${c.id}')" class="p-1.5 rounded bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Render Messages Table
+            const msgContainer = document.getElementById('adminMessagesContainer');
+            msgContainer.innerHTML = messages.map(m => `
+                <div class="p-4 rounded-xl bg-cyber-darkblue border border-cyber-border space-y-3">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-white">${m.name} (${m.email})</span>
+                        <span class="text-slate-500">${m.date}</span>
+                    </div>
+                    <p class="text-sm text-slate-300">${m.message}</p>
+                    <div class="pt-2 border-t border-cyber-border flex gap-2">
+                        <input type="text" id="replyInput_${m.id}" value="${m.reply || ''}" class="flex-grow bg-cyber-bg border border-cyber-border rounded-lg px-3 py-1.5 text-xs text-white focus:border-cyber-cyan outline-none" placeholder="Type studio reply...">
+                        <button onclick="sendAdminReply('${m.id}')" class="px-4 py-1.5 rounded-lg bg-cyber-cyan text-cyber-bg font-bold text-xs">Reply</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Vault Manager Grid
+            const vaultList = document.getElementById('adminVaultList');
+            vaultList.innerHTML = models.map(m => `
+                <div class="glass-panel p-4 rounded-xl border border-cyber-border flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-orbitron font-bold text-white text-sm mb-1">${m.title}</h4>
+                        <p class="text-xs text-slate-400 mb-3">${m.desc}</p>
+                    </div>
+                    <button onclick="deleteModel('${m.id}')" class="py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white transition text-xs font-orbitron">
+                        Delete Asset
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function updateProjectStatus(projId, newStatus) {
+            let projects = JSON.parse(localStorage.getItem('cyber_projects')) || [];
+            projects = projects.map(p => {
+                if (p.id === projId) p.status = newStatus;
+                return p;
+            });
+            localStorage.setItem('cyber_projects', JSON.stringify(projects));
+        }
+
+        function deleteProject(projId) {
+            let projects = JSON.parse(localStorage.getItem('cyber_projects')) || [];
+            projects = projects.filter(p => p.id !== projId);
+            localStorage.setItem('cyber_projects', JSON.stringify(projects));
+            loadAdminData();
+        }
+
+        function deleteCustomer(custId) {
+            let customers = JSON.parse(localStorage.getItem('cyber_customers')) || [];
+            customers = customers.filter(c => c.id !== custId);
+            localStorage.setItem('cyber_customers', JSON.stringify(customers));
+            loadAdminData();
+        }
+
+        function sendAdminReply(msgId) {
+            const replyText = document.getElementById(`replyInput_${msgId}`).value;
+            let messages = JSON.parse(localStorage.getItem('cyber_messages')) || [];
+            messages = messages.map(m => {
+                if (m.id === msgId) m.reply = replyText;
+                return m;
+            });
+            localStorage.setItem('cyber_messages', JSON.stringify(messages));
+            alertUser('Reply sent to customer successfully.');
+            loadAdminData();
+        }
+
+        function deleteModel(modelId) {
+            let models = JSON.parse(localStorage.getItem('cyber_models')) || defaultModels;
+            models = models.filter(m => m.id !== modelId);
+            localStorage.setItem('cyber_models', JSON.stringify(models));
+            loadAdminData();
+            renderVaultModels();
+        }
+
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.remove('hidden');
+            document.getElementById('uploadModal').classList.add('flex');
+        }
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('flex');
+            document.getElementById('uploadModal').classList.add('hidden');
+        }
+
+        function handleModelUpload(e) {
+            e.preventDefault();
+            const title = document.getElementById('upTitle').value;
+            const desc = document.getElementById('upDesc').value;
+            const fileUrl = document.getElementById('upFileUrl').value;
+
+            const newModel = {
+                id: 'm_' + Date.now(),
+                title,
+                desc,
+                fileUrl,
+                format: 'GLTF'
+            };
+
+            const models = JSON.parse(localStorage.getItem('cyber_models')) || defaultModels;
+            models.unshift(newModel);
+            localStorage.setItem('cyber_models', JSON.stringify(models));
+
+            closeUploadModal();
+            e.target.reset();
+            alertUser('3D Model uploaded successfully to Vault!');
+            renderVaultModels();
+            if (currentTab === 'admin') loadAdminData();
+        }
+
+        function playVideo(url, title) {
+            document.getElementById('mainShowreelVideo').src = url;
+            document.getElementById('currentVideoTitle').innerText = title;
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        function alertUser(message) {
+            // Custom modal-less alert replacement
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed bottom-6 right-6 z-50 glass-panel border border-cyber-cyan px-6 py-4 rounded-xl shadow-neon-cyan flex items-center space-x-3 text-sm text-white animate-bounce';
+            alertDiv.innerHTML = `<i class="fa-solid fa-circle-info text-cyber-cyan text-lg"></i><span>${message}</span>`;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 4000);
+        }
+
+        // Window onload initialization
+        window.onload = function() {
+            updateAuthNav();
+            // Initialize Hero 3D demo with first default model
+            setTimeout(() => {
+                init3DViewer('heroCanvasContainer', defaultModels[0].fileUrl);
+            }, 500);
+        };
+    </script>
+</body>
+</html>
